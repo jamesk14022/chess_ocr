@@ -1,0 +1,7 @@
+- understand which notation is used by popular books (done)
+- how can OCR be improved? finetuning? different model than tesseract? rule-based correction 
+- tesseract can be retrained to work with chess symbols https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html
+- guide for adding special characers to english in tesseract https://arcruz0.github.io/posts/finetuning-tess/, in this example they add the greek letter mu, but I imagine this will also work for chess pieces in unicode
+- make character whitelist for algebraic no symbol
+- also extra suspicous turn numbers
+- because many of the notation blocks are contained within the paragraps, it is also important to be able to dinstinguish the notation from raw text 
