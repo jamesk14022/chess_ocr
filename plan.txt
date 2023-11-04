@@ -5,3 +5,4 @@
 - make character whitelist for algebraic no symbol
 - also extra suspicous turn numbers
 - because many of the notation blocks are contained within the paragraps, it is also important to be able to dinstinguish the notation from raw text 
+- detecting the start and end of notation blocks

@@ -13,7 +13,20 @@ from pytesseract import Output
 
 TESSERACT_PATH = r'/opt/homebrew/bin/tesseract'
 
+def find_notation_start(text):
+  
+  start_pattern = re.compile("\d{1,}[,\.]")
+  matched_start = start_pattern.search(text)
+
+  if matched_start is None:
+    return None
+  else:
+    return matched_start.start()
+      
 def check_move_valid(move):
+  """
+  https://8bitclassroom.com/2020/08/16/chess-in-regex/
+  """
 
   # regex for valid algebraic moves
   move_pattern = re.compile("([Oo0](-[Oo0]){1,2}|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](\=[QRBN])?[+#]?(\s(1-0|0-1|1\/2-1\/2))?)")
@@ -86,16 +99,28 @@ def move_delimiters(turn_count):
   #return [" " + str(turn_count) + ".", " " + str(turn_count) + ",.", " " + str(turn_count), str(turn_count) + ".", str(turn_count) + ",.", str(turn_count)]
   return [str(turn_count) + ".", str(turn_count) + ",."]
 
-
-def parse_move_text(invalid_move_text, note):
+def get_inital_turn_count(note):
 
   # first, detect the inital turn count
   if note[:1] == "1.":
-    turn_count = 1
+    return 1
   else:
     first_turn_index = note.find(".")
-    turn_count = int(note[:first_turn_index])
+    return int(note[:first_turn_index])
 
+def check_suspicious(turn_text, invalid_move_text):
+  # check if the move text appears to be suspicous (exclude move number for now)
+  for invalid_text in invalid_move_text:
+    #print(f"mv: {invalid_text} {note[:next_index + len(min_delimiter)]}")
+    if invalid_text in turn_text.lower():
+      print("Suspicious!")
+      return True        
+  return False 
+  
+
+def parse_move_text(invalid_move_text, note):
+
+  turn_count = get_inital_turn_count(note)
   turns = []
   final_turn = False
 
@@ -117,14 +142,8 @@ def parse_move_text(invalid_move_text, note):
       next_index = matched_next_indices[min_delimiter]
 
     if note[:next_index].strip() != "":
-      suspicious = False
-      # check if the move text appears to be suspicous (exclude move number for now)
-      for invalid_text in invalid_move_text:
-        #print(f"mv: {invalid_text} {note[:next_index + len(min_delimiter)]}")
-        if invalid_text in note[:next_index].lower():
-          print("Suspicious!")
-          suspicious = True        
-      
+
+      is_suspicious = check_suspicious(note[:next_index], invalid_move_text)
       #print(f"raw turn text is {note[:next_index].strip().split(' ')}")
       raw_turn_text = note[:next_index].strip().split(" ")
       raw_turn_text = filter(lambda x: x.strip() != "", raw_turn_text)
@@ -137,7 +156,7 @@ def parse_move_text(invalid_move_text, note):
         mv = clean_move(mv)
         move_to_add.append(Move(mv))
 
-      turns.append(Turn(move_to_add, suspicious))
+      turns.append(Turn(move_to_add, is_suspicious))
     turn_count += 1 
     note = note[next_index + len(min_delimiter):]
 
