@@ -1,4 +1,4 @@
-## Chess OCR 
+## ♞ Chess OCR ♞
 
 Extract, parse and find errors in algebraic chess notation, like that found in e.g
 
