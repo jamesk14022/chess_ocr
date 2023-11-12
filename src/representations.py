@@ -3,7 +3,7 @@ class Move:
         self.move_text = move_text
 
     def __str__(self):
-        return self.text
+        return self.move_text
 
     def __repr__(self):
         return str(self)

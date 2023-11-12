@@ -3,13 +3,15 @@ import re
 import subprocess
 from pathlib import Path
 
-from src.preprocessing import clean_move
+from preprocessing import clean_move
 from representations import Move, Turn
 import cv2
 import pytesseract
 
 FIRST_NOTATION_TURN = "\d{1,}[,\.]"
 VALID_ALGEBRAIC_MOVE = "([Oo0](-[Oo0]){1,2}|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](\=[QRBN])?[+#]?(\s(1-0|0-1|1\/2-1\/2))?)"
+
+INTERMEDIATE_FILE_LOCATION = "/Users/james/Documents/code/chess_ocr/intermediate"
 
 # tesseract setup 
 TESSERACT_PATH = r"/opt/homebrew/bin/tesseract"
@@ -146,7 +148,7 @@ def parse_move_text(invalid_move_text: list[str], note: str) -> list[Turn]:
 
 def parser_handler(input_directory: str) -> list[Turn]:
     # Set the directory path
-    dir_path = Path(__file__).parent / Path("my_system_notation_samples")
+    dir_path = Path(input_directory)
 
     # List all files recursively
     all_files = [
@@ -160,7 +162,7 @@ def parser_handler(input_directory: str) -> list[Turn]:
         print(f"This file is {file_path}")
 
         png_input = file_path
-        pgn_file_name = f"intermediate/{png_input.name.replace('png', 'pgn')}"
+        pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{png_input.name.replace('png', 'pgn')}"
         note = ocr_text(png_input)
 
         # write the parsed pgn to a file
@@ -168,13 +170,13 @@ def parser_handler(input_directory: str) -> list[Turn]:
             f.write(note)
 
         invalid_move_text = extract_errors(pgn_file_name)
-        return parse_move_text(invalid_move_text, note)
+        print(parse_move_text(invalid_move_text, note))
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input_directory", type=str, help="The relative path to the directory containing your notation samples to be parsed.")
     args = parser.parse_args()
-    print(parser_handler(args.input_directory))
+    parser_handler(args.input_directory)
 
     
