@@ -40,6 +40,13 @@ def check_move_valid(move):
 def clean_move(move):
     return move.replace(",", "")
 
+def alternative_preprocessing(image):
+    # take the cv2 image
+    image = imutils.resize(image, width=700)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    thresh = cv2.GaussianBlur(thresh, (3,3), 0)
+    return thresh
 
 def ocr_text(png_file_input):
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
