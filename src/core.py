@@ -1,3 +1,4 @@
+import argparse
 import re
 import subprocess
 from pathlib import Path
@@ -91,7 +92,7 @@ def check_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     return False
 
 
-def parse_move_text(invalid_move_text: list[str], note: str) -> list:
+def parse_move_text(invalid_move_text: list[str], note: str) -> list[Turn]:
     notation_start = find_notation_start(note)
 
     # print(f"not start {notation_start}")
@@ -143,8 +144,7 @@ def parse_move_text(invalid_move_text: list[str], note: str) -> list:
 
     return turns
 
-
-if __name__ == "__main__":
+def parser_handler(input_directory: str) -> list[Turn]:
     # Set the directory path
     dir_path = Path(__file__).parent / Path("my_system_notation_samples")
 
@@ -168,5 +168,13 @@ if __name__ == "__main__":
             f.write(note)
 
         invalid_move_text = extract_errors(pgn_file_name)
-        turns = parse_move_text(invalid_move_text, note)
-        print(turns)
+        return parse_move_text(invalid_move_text, note)
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_directory", type=str, help="The relative path to the directory containing your notation samples to be parsed.")
+    args = parser.parse_args()
+    print(parser_handler(args.input_directory))
+
+    
