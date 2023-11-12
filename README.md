@@ -1,6 +1,6 @@
 ## ♞ Chess OCR ♞
 
-Extract, parse and find errors in algebraic chess notation, like that found in e.g
+Extract, parse and find errors in chess notation from PNG images. Algebraic notation without piece graphics is supported, like that found in e.g
 
 - "My System" by Aron Nimzowitsch
 - "Silman's Complete Endgame Course" by Jeremy Silman
