@@ -9,12 +9,13 @@ class Move:
         return str(self)
 
 class Turn:
-    def __init__(self, moves: list[Move], sus: bool = False):
+    def __init__(self, moves: list[Move], number: int, sus: bool = False):
+        self.number: int = number
         self.moves: list[Move] = moves
         self.sus: bool = sus
 
     def __str__(self):
-        return f"{self.moves} suspicious: {self.sus}"
+        return f"{self.number}: {self.moves} suspicious: {self.sus}"
 
     def __repr__(self):
         return str(self)

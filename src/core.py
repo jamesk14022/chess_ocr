@@ -99,18 +99,15 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
     notation_start = find_notation_start(note)
 
     note = note[notation_start:]
-    turn_count = get_inital_turn_count(note)
+    next_turn_count = get_inital_turn_count(note)
     turns = []
     final_turn = False
 
     while True:
-        move_delimiter_next = move_delimiters(turn_count)
+        move_delimiter_next = move_delimiters(next_turn_count)
         matched_next_indices = {
             d: note.find(d) for d in move_delimiter_next if note.find(d) != -1
         }
-
-        # print(matched_next_indices)
-        # print(note)
 
         if len(matched_next_indices) == 0:
             final_turn = True
@@ -133,9 +130,9 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
                 notation_end = inital_note.find(raw_turn_text[-1]) + len(raw_turn_text[-1])
 
             moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text]
-            turns.append(Turn(moves_to_add, True if len(moves_to_add)!=2 and not final_turn else False))
+            turns.append(Turn(moves_to_add, next_turn_count - 1, True if len(moves_to_add)!=2 and not final_turn else False))
 
-        turn_count += 1
+        next_turn_count += 1
         note = note[next_index + len(min_delimiter) :]
 
         if final_turn:
