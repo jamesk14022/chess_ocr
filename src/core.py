@@ -83,6 +83,11 @@ def get_inital_turn_count(note: str) -> int:
         first_turn_index = note.find(".")
         return int(note[:first_turn_index])
 
+def split_joined_moves(joined_move_text: str):
+    for char_counter in range(1, len(joined_move_text)):
+        if check_move_valid(joined_move_text[:char_counter]) and check_move_valid(joined_move_text[char_counter:]):
+            return [joined_move_text[:char_counter], joined_move_text[char_counter:]]
+    return None
 
 def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     # check if the move text appears to be suspicous (exclude move number for now)
@@ -128,6 +133,11 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
                 raw_turn_text = list(filter(check_move_valid, raw_turn_text))[:2]
                 # there is a bug here if the last turn notation appears multiple time in the string? 
                 notation_end = inital_note.find(raw_turn_text[-1]) + len(raw_turn_text[-1])
+
+            # split move text of turn which is missing a space between moves
+            if len(raw_turn_text) == 1 and (split_move := split_joined_moves(raw_turn_text[0])) != None:
+                print("triggered split!")
+                raw_turn_text = split_move
 
             moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text]
             turns.append(Turn(moves_to_add, next_turn_count - 1, True if len(moves_to_add)!=2 and not final_turn else False))
