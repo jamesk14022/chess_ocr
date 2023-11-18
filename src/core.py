@@ -133,7 +133,7 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
                 notation_end = inital_note.find(raw_turn_text[-1]) + len(raw_turn_text[-1])
 
             moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text]
-            turns.append(Turn(moves_to_add, False if len(moves_to_add)==2 else True))
+            turns.append(Turn(moves_to_add, True if len(moves_to_add)!=2 and not final_turn else False))
 
         turn_count += 1
         note = note[next_index + len(min_delimiter) :]

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 IMAGE_RESIZE_FACTOR=3
 
 def clean_move(move_text: str) -> str:
-    return move_text.replace(",", "")
+    return move_text.replace(",", "").replace(".", "")
 
 def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
 
