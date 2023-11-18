@@ -9,7 +9,7 @@ class Move:
         return str(self)
 
 class Turn:
-    def __init__(self, moves: list[Move], sus: bool):
+    def __init__(self, moves: list[Move], sus: bool = False):
         self.moves: list[Move] = moves
         self.sus: bool = sus
 

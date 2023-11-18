@@ -84,21 +84,19 @@ def get_inital_turn_count(note: str) -> int:
         return int(note[:first_turn_index])
 
 
-def check_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
+def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     # check if the move text appears to be suspicous (exclude move number for now)
     for invalid_text in invalid_move_text:
         # print(f"mv: {invalid_text} {note[:next_index + len(min_delimiter)]}")
         if invalid_text in turn_text.lower():
-            print("Suspicious!")
             return True
     return False
 
 
-def parse_move_text(invalid_move_text: list[str], note: str) -> list[Turn]:
-    notation_start = find_notation_start(note)
+def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
 
-    # print(f"not start {notation_start}")
-    # print(note)
+    note = inital_note 
+    notation_start = find_notation_start(note)
 
     note = note[notation_start:]
     turn_count = get_inital_turn_count(note)
@@ -115,7 +113,6 @@ def parse_move_text(invalid_move_text: list[str], note: str) -> list[Turn]:
         # print(note)
 
         if len(matched_next_indices) == 0:
-            print("No next index")
             final_turn = True
             next_index = len(note)
             min_delimiter = ""
@@ -124,25 +121,32 @@ def parse_move_text(invalid_move_text: list[str], note: str) -> list[Turn]:
             next_index = matched_next_indices[min_delimiter]
 
         if note[:next_index].strip() != "":
-            is_suspicious = check_suspicious(note[:next_index], invalid_move_text)
+            
             # print(f"raw turn text is {note[:next_index].strip().split(' ')}")
             raw_turn_text = note[:next_index].strip().split(" ")
             raw_turn_text = list(filter(lambda x: x.strip() != "", raw_turn_text))
             # if its the final turn, filter moves which don't appear legit and only take first two moves
             if final_turn:
+                # print(f"final turn raw_turn_text is {raw_turn_text}")
                 raw_turn_text = list(filter(check_move_valid, raw_turn_text))[:2]
+                # there is a bug here if the last turn notation appears multiple time in the string? 
+                notation_end = inital_note.find(raw_turn_text[-1]) + len(raw_turn_text[-1])
 
-            move_to_add = []
-            for mv in raw_turn_text:
-                mv = clean_move(mv)
-                move_to_add.append(Move(mv))
+            moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text]
+            turns.append(Turn(moves_to_add, False if len(moves_to_add)==2 else True))
 
-            turns.append(Turn(move_to_add, is_suspicious))
         turn_count += 1
         note = note[next_index + len(min_delimiter) :]
 
         if final_turn:
             break
+
+    return turns, notation_start, notation_end 
+
+def parse_suspicions(turns: list[Turn], invalid_move_text: list[str]):
+
+    for t in turns:
+        t.sus = t.sus or check_turn_suspicious(str(t), invalid_move_text)
 
     return turns
 
@@ -165,12 +169,21 @@ def parser_handler(input_directory: str) -> list[Turn]:
         pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{png_input.name.replace('png', 'pgn')}"
         note = ocr_text(png_input)
 
+        print(f"raw ocr {note}")
+
+        turns, notation_start, notation_end = parse_move_text(note)
+
+        
+        print(f"truncated ocr {note[notation_start:notation_end]}")
+
         # write the parsed pgn to a file
         with open(pgn_file_name, "w") as f:
-            f.write(note)
+            f.write(note[notation_start:notation_end])
+
 
         invalid_move_text = extract_errors(pgn_file_name)
-        print(parse_move_text(invalid_move_text, note))
+        print(f"The invalid move text is {invalid_move_text}")
+        print(parse_suspicions(turns, invalid_move_text))
 
 if __name__ == "__main__":
 
