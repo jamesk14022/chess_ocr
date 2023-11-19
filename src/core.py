@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -190,7 +191,7 @@ def parser_handler(input_directory: str) -> list[Turn]:
 
         invalid_move_text = extract_errors(pgn_file_name)
         print(f"The invalid move text is {invalid_move_text}")
-        print(parse_suspicions(turns, invalid_move_text))
+        print(json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)])
 
 if __name__ == "__main__":
 
