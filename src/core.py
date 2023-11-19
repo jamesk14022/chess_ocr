@@ -195,6 +195,7 @@ def parser_handler(input_directory: str) -> list[Turn]:
         move_text = json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)])
 
         move_text_prompt = build_move_suggestion_prompt(move_text)
+        print(move_text_prompt)
         print(chat_completion(move_text_prompt).choices[0].message.content.replace("\n", ""))
 
 if __name__ == "__main__":
