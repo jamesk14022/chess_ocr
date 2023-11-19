@@ -6,6 +6,7 @@ from pathlib import Path
 
 from preprocessing import clean_move
 from representations import Move, Turn
+from openai_api import build_move_suggestion_prompt, chat_completion
 import cv2
 import pytesseract
 
@@ -190,8 +191,11 @@ def parser_handler(input_directory: str) -> list[Turn]:
 
 
         invalid_move_text = extract_errors(pgn_file_name)
-        print(f"The invalid move text is {invalid_move_text}")
-        print(json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)])
+
+        move_text = json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)])
+
+        move_text_prompt = build_move_suggestion_prompt(move_text)
+        print(chat_completion(move_text_prompt).choices[0].message.content.replace("\n", ""))
 
 if __name__ == "__main__":
 
