@@ -2,13 +2,13 @@ class Move:
     def __init__(self, move_text: str):
         self.move_text = move_text
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.move_text
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def to_dict(self):
+    def to_dict(self) -> str:
         return {
             "move_text": self.move_text
         }
@@ -19,17 +19,18 @@ class Turn:
         self.moves: list[Move] = moves
         self.sus: bool = sus
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.number}: {self.moves} suspicious: {self.sus}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def to_dict(self):
-
+    def to_dict(self) -> dict:
         return {
             "number": self.number,
             "moves": [m.to_dict() for m in self.moves],
             "sus": self.sus
         }
+
+
 

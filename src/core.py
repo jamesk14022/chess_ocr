@@ -20,6 +20,29 @@ TESSERACT_PATH = r"/opt/homebrew/bin/tesseract"
 TESSERACT_CONFIG = "-c tessedit_char_blacklist=i%"
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
+def build_PGN(turns: list[Turn], **kwargs) -> str:
+
+    PERMITTED_PGN_HEADERS = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
+
+    # build result iteratively
+    PGN_result = ""    
+
+    for key, value in kwargs.items():
+        if key not in PERMITTED_PGN_HEADERS:
+            raise Exception("PGN key not in allowed list.")
+
+        PGN_result += f'[{key} "{value}"]\n'
+
+    PGN_result += '\n'
+
+    for turn in turns:
+        PGN_result += str(turn.number) + ". "
+        for move in turn.moves:
+            PGN_result += move.move_text        
+        
+    return PGN_result
+
+
 def find_notation_start(text: str) -> int:
     start_pattern = re.compile(FIRST_NOTATION_TURN)
     matched_start = start_pattern.search(text)
@@ -76,7 +99,6 @@ def move_delimiters(turn_count: int) -> list[str]:
     # return [" " + str(turn_count) + ".", " " + str(turn_count) + ",.", " " + str(turn_count), str(turn_count) + ".", str(turn_count) + ",.", str(turn_count)]
     return [str(turn_count) + ".", str(turn_count) + ",."]
 
-
 def get_inital_turn_count(note: str) -> int:
     # first, detect the inital turn count
     if note[:1] == "1.":
@@ -84,7 +106,7 @@ def get_inital_turn_count(note: str) -> int:
     else:
         first_turn_index = note.find(".")
         return int(note[:first_turn_index])
-
+    
 def split_joined_moves(joined_move_text: str):
     for char_counter in range(1, len(joined_move_text)):
         if check_move_valid(joined_move_text[:char_counter]) and check_move_valid(joined_move_text[char_counter:]):
