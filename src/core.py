@@ -38,7 +38,7 @@ def build_PGN(turns: list[Turn], **kwargs) -> str:
     for turn in turns:
         PGN_result += str(turn.number) + ". "
         for move in turn.moves:
-            PGN_result += move.move_text        
+            PGN_result += move.move_text + " "        
         
     return PGN_result
 
@@ -189,7 +189,7 @@ def parser_handler(input_directory: str) -> list[Turn]:
     all_files = [
         file
         for file in dir_path.rglob("*")
-        if file.is_file() and ".DS" not in file.name
+        if file.is_file() and ".DS" not in file.name and "12" in file.name
     ]
 
     for file_path in sorted(all_files):
@@ -200,25 +200,20 @@ def parser_handler(input_directory: str) -> list[Turn]:
         pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{png_input.name.replace('png', 'pgn')}"
         note = ocr_text(png_input)
 
-        print(f"raw ocr {note}")
-
         turns, notation_start, notation_end = parse_move_text(note)
-
-        
-        print(f"truncated ocr {note[notation_start:notation_end]}")
 
         # write the parsed pgn to a file
         with open(pgn_file_name, "w") as f:
             f.write(note[notation_start:notation_end])
 
-
         invalid_move_text = extract_errors(pgn_file_name)
-
-        move_text = json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)])
-
-        move_text_prompt = build_combined_move_suggestion_prompt(move_text)
-        print(move_text_prompt)
-        print(chat_completion(move_text_prompt).choices[0].message.content.replace("\n", ""))
+        
+        print(build_PGN(parse_suspicions(turns, invalid_move_text)))
+        
+        #print(json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)]))
+        #move_text_prompt = build_combined_move_suggestion_prompt(move_text)
+        #print(move_text_prompt)
+        #print(chat_completion(move_text_prompt).choices[0].message.content.replace("\n", ""))
 
 if __name__ == "__main__":
 
