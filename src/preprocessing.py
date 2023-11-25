@@ -1,17 +1,18 @@
-import numpy as np
-import pytesseract
 import cv2
 import imutils
-from numpy import ndarray
 import matplotlib.pyplot as plt
+import numpy as np
+import pytesseract
+from numpy import ndarray
 
-IMAGE_RESIZE_FACTOR=3
+IMAGE_RESIZE_FACTOR = 3
+
 
 def clean_move(move_text: str) -> str:
     return move_text.replace(",", "").replace(".", "")
 
-def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
 
+def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
     # Convert to grayscale
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -24,6 +25,7 @@ def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
     msk = cv2.resize(msk, (0, 0), fx=2, fy=2)
     return msk
 
+
 def alternative_preprocessing(image: ndarray) -> ndarray:
     # take the cv2 image
     image = imutils.resize(image, width=700)
@@ -34,10 +36,12 @@ def alternative_preprocessing(image: ndarray) -> ndarray:
 
 
 def alternative_preprocessing_cropping_detection(image: ndarray) -> ndarray:
-
     imgr = cv2.resize(
         image,
-        (int(image.shape[1] * IMAGE_RESIZE_FACTOR), int(image.shape[0] * IMAGE_RESIZE_FACTOR)),
+        (
+            int(image.shape[1] * IMAGE_RESIZE_FACTOR),
+            int(image.shape[0] * IMAGE_RESIZE_FACTOR),
+        ),
         interpolation=cv2.INTER_AREA,
     )
 

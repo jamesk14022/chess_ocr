@@ -8,10 +8,9 @@ class Move:
     def __repr__(self) -> str:
         return str(self)
 
-    def to_dict(self) -> str:
-        return {
-            "move_text": self.move_text
-        }
+    def to_dict(self) -> dict:
+        return {"move_text": self.move_text}
+
 
 class Turn:
     def __init__(self, moves: list[Move], number: int, sus: bool = False):
@@ -29,8 +28,5 @@ class Turn:
         return {
             "number": self.number,
             "moves": [m.to_dict() for m in self.moves],
-            "sus": self.sus
+            "sus": self.sus,
         }
-
-
-
