@@ -230,27 +230,6 @@ def parser_handler(input_directory: str) -> list[Turn]:
 
         print(edited_turns)
 
-        # gpt_turns = []
-        #try for the first 8 turns
-        # for i in range(1, len(turns)):
-
-
-        #     turn_text = str(turns[i].number) + ". " + " ".join([m.move_text for m in turns[i].moves])
-        #     print(turn_text)
-            # print(test_valid_algebraic(turn_text))
-            
-
-            # turn_limit_pgn = build_PGN(turns[:i])
-
-            # print(turn_limit_pgn)
-            # print(test_next_move_prediction(turn_limit_pgn))
-
-
-        #print(json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)]))
-        #move_text_prompt = build_combined_move_suggestion_prompt(move_text)
-        #print(move_text_prompt)
-        #print(chat_completion(move_text_prompt).choices[0].message.content.replace("\n", ""))
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
