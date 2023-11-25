@@ -186,12 +186,12 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
             # split move text of turn which is missing a space between moves
             if (
                 len(raw_turn_text) == 1
+                and not check_move_valid(raw_turn_text[0])
                 and (split_move := split_joined_moves(raw_turn_text[0])) != None
             ):
-                print("triggered split!")
                 raw_turn_text = split_move
 
-            moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text]
+            moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text if clean_move(mv)]
             turns.append(
                 Turn(
                     moves_to_add,
@@ -224,7 +224,7 @@ def parser_handler(input_directory: str) -> None:
     all_files = [
         file
         for file in dir_path.rglob("*")
-        if file.is_file() and ".DS" not in file.name and "ex12" in file.name
+        if file.is_file() and ".DS" not in file.name
     ]
 
     for file_path in sorted(all_files):
@@ -240,6 +240,8 @@ def parser_handler(input_directory: str) -> None:
 
         turns, notation_start, notation_end = parse_move_text(note)
 
+        print(turns)
+
         # write the parsed pgn to a file
         with open(pgn_file_name, "w") as f:
             f.write(note[notation_start:notation_end])
@@ -252,12 +254,11 @@ def parser_handler(input_directory: str) -> None:
         edited_turns = copy.copy(turns)
 
         for turn in edited_turns:
+            print(turn.moves)
             for move in turn.moves:
                 if not check_move_valid(move.move_text):
                     print("Recommended new move")
-                    move.move_text = test_valid_algebraic(move.move_text)[
-                        "move_text_suggestion"
-                    ]
+                    move.move_text = test_valid_algebraic(move.move_text)["move_text_suggestion"]
 
         print(edited_turns)
 
