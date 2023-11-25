@@ -1,12 +1,12 @@
 import argparse
-import json
+import copy
 import re
 import subprocess
 from pathlib import Path
 
 from preprocessing import clean_move
 from representations import Move, Turn
-from openai_api import build_combined_move_suggestion_prompt, chat_completion
+from openai_api import test_valid_algebraic, build_combined_move_suggestion_prompt, chat_completion, test_next_move_prediction, test_valid_algebraic
 import cv2
 import pytesseract
 
@@ -108,9 +108,17 @@ def get_inital_turn_count(note: str) -> int:
         return int(note[:first_turn_index])
     
 def split_joined_moves(joined_move_text: str):
+
+    # search for two valid moves
     for char_counter in range(1, len(joined_move_text)):
         if check_move_valid(joined_move_text[:char_counter]) and check_move_valid(joined_move_text[char_counter:]):
             return [joined_move_text[:char_counter], joined_move_text[char_counter:]]
+
+    # search for one valid move
+    for char_counter in range(1, len(joined_move_text)):
+        if check_move_valid(joined_move_text[:char_counter]) or check_move_valid(joined_move_text[char_counter:]):
+            return [joined_move_text[:char_counter], joined_move_text[char_counter:]]
+
     return None
 
 def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
@@ -189,12 +197,13 @@ def parser_handler(input_directory: str) -> list[Turn]:
     all_files = [
         file
         for file in dir_path.rglob("*")
-        if file.is_file() and ".DS" not in file.name and "12" in file.name
+        if file.is_file() and ".DS" not in file.name and "ex12" in file.name
     ]
 
     for file_path in sorted(all_files):
         print("\n \n ------------------------")
         print(f"This file is {file_path}")
+        print("\n \n ------------------------")
 
         png_input = file_path
         pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{png_input.name.replace('png', 'pgn')}"
@@ -208,8 +217,35 @@ def parser_handler(input_directory: str) -> list[Turn]:
 
         invalid_move_text = extract_errors(pgn_file_name)
         
-        print(build_PGN(parse_suspicions(turns, invalid_move_text)))
+        turns = parse_suspicions(turns, invalid_move_text)
+        print(turns)
+
+        edited_turns = copy.copy(turns)
         
+        for turn in edited_turns:
+            for move in turn.moves:
+                if not check_move_valid(move.move_text):
+                    print("Recommended new move")
+                    move.move_text = test_valid_algebraic(move.move_text)["move_text_suggestion"]
+
+        print(edited_turns)
+
+        # gpt_turns = []
+        #try for the first 8 turns
+        # for i in range(1, len(turns)):
+
+
+        #     turn_text = str(turns[i].number) + ". " + " ".join([m.move_text for m in turns[i].moves])
+        #     print(turn_text)
+            # print(test_valid_algebraic(turn_text))
+            
+
+            # turn_limit_pgn = build_PGN(turns[:i])
+
+            # print(turn_limit_pgn)
+            # print(test_next_move_prediction(turn_limit_pgn))
+
+
         #print(json.dumps([turn.to_dict() for turn in parse_suspicions(turns, invalid_move_text)]))
         #move_text_prompt = build_combined_move_suggestion_prompt(move_text)
         #print(move_text_prompt)
