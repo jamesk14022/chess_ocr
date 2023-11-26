@@ -1,0 +1,3 @@
+2023.11.12 22:56:00 INFO  Started: Metals version 1.1.0 in folders '/Users/james/Documents/code/chess_ocr' for client Visual Studio Code 1.82.2.
+2023.11.12 22:56:00 WARN  no build tool detected in workspace '/Users/james/Documents/code/chess_ocr'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2023.11.12 22:56:00 WARN  Build server is not auto-connectable.
