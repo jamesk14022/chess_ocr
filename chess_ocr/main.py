@@ -1,9 +1,10 @@
 import argparse
 from pathlib import Path
+
 from chess_ocr.core import Notation
 
-def parser_handler(input_directory: str) -> None:
 
+def parser_handler(input_directory: str) -> None:
     # Set the directory path
     dir_path = Path(input_directory)
 
@@ -19,11 +20,11 @@ def parser_handler(input_directory: str) -> None:
         print(f"This file is {file_path}")
         print("\n \n ------------------------")
 
-
-        n = Notation(file_path) 
+        n = Notation(file_path)
         print("Raw turns: ", n.turns)
         print("Suspicious turns: ", n.get_suspicous_turns())
         print("Turn suggestions: ", n.get_turn_suggestions())
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

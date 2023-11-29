@@ -5,9 +5,9 @@ from pathlib import Path
 
 import cv2
 import pytesseract
-
 from openai_api import test_valid_algebraic
-from preprocessing import clean_move
+
+from chess_ocr.preprocessing import clean_move
 
 FIRST_NOTATION_TURN = "\d{1,}[,\.]"
 VALID_ALGEBRAIC_MOVE = "([Oo0](-[Oo0]){1,2}|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](\=[QRBN])?[+#]?(\s(1-0|0-1|1\/2-1\/2))?)"
@@ -18,6 +18,7 @@ INTERMEDIATE_FILE_LOCATION = "/Users/james/Documents/code/chess_ocr/intermediate
 TESSERACT_PATH = r"/opt/homebrew/bin/tesseract"
 TESSERACT_CONFIG = "-c tessedit_char_blacklist=i%"
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
 
 class Move:
     def __init__(self, move_text: str):
@@ -52,34 +53,37 @@ class Turn:
             "sus": self.sus,
         }
 
-class Notation: 
+
+class Notation:
     def __init__(self, image_loc: Path) -> None:
         self.image_loc = image_loc
         self.image = cv2.imread(str(self.image_loc))
-        self.turns, self.notation_start, self.notation_end = parse_move_text(self.to_text())
+        self.turns, self.notation_start, self.notation_end = parse_move_text(
+            self.to_text()
+        )
 
     def to_text(self) -> str:
-        return pytesseract.image_to_string(self.image, config=TESSERACT_CONFIG).replace("\n", "")
+        return pytesseract.image_to_string(self.image, config=TESSERACT_CONFIG).replace(
+            "\n", ""
+        )
 
     def get_suspicious_turns(self) -> list[Turn]:
-        pgn_file_name = (
-            f"{INTERMEDIATE_FILE_LOCATION}/{str(self.image_loc).split('/')[-1].replace('png', 'pgn')}"
-        )
+        pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{str(self.image_loc).split('/')[-1].replace('png', 'pgn')}"
         with open(pgn_file_name, "w") as f:
-            f.write(self.to_text()[self.notation_start:self.notation_end])
+            f.write(self.to_text()[self.notation_start : self.notation_end])
         invalid_move_text = extract_errors(pgn_file_name)
         return parse_suspicions(self.turns, invalid_move_text)
 
     def get_turn_suggestions(self) -> list[Turn]:
-
         edited_turns = copy.copy(self.turns)
         for turn in self.turns:
             for move in turn.moves:
                 if not check_move_valid(move.move_text):
-                    move.move_text = test_valid_algebraic(move.move_text)["move_text_suggestion"]
+                    move.move_text = test_valid_algebraic(move.move_text)[
+                        "move_text_suggestion"
+                    ]
 
         return edited_turns
-
 
 
 def build_PGN(turns: list[Turn], **kwargs) -> str:
@@ -250,7 +254,9 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
             ):
                 raw_turn_text = split_move
 
-            moves_to_add = [Move(clean_move(mv)) for mv in raw_turn_text if clean_move(mv)]
+            moves_to_add = [
+                Move(clean_move(mv)) for mv in raw_turn_text if clean_move(mv)
+            ]
             turns.append(
                 Turn(
                     moves_to_add,
