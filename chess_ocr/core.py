@@ -86,34 +86,34 @@ class Notation:
         return edited_turns
 
 
-def build_PGN(turns: list[Turn], **kwargs) -> str:
-    PERMITTED_PGN_HEADERS = [
-        "Event",
-        "Site",
-        "Date",
-        "Round",
-        "White",
-        "Black",
-        "Result",
-    ]
+    def build_PGN(self, **kwargs) -> str:
+        PERMITTED_PGN_HEADERS = [
+            "Event",
+            "Site",
+            "Date",
+            "Round",
+            "White",
+            "Black",
+            "Result",
+        ]
 
-    # build result iteratively
-    PGN_result = ""
+        # build result iteratively
+        PGN_result = ""
 
-    for key, value in kwargs.items():
-        if key not in PERMITTED_PGN_HEADERS:
-            raise Exception("PGN key not in allowed list.")
+        for key, value in kwargs.items():
+            if key not in PERMITTED_PGN_HEADERS:
+                raise Exception("PGN key not in allowed list.")
 
-        PGN_result += f'[{key} "{value}"]\n'
+            PGN_result += f'[{key} "{value}"]\n'
 
-    PGN_result += "\n"
+        PGN_result += "\n"
 
-    for turn in turns:
-        PGN_result += str(turn.number) + ". "
-        for move in turn.moves:
-            PGN_result += move.move_text + " "
+        for turn in self.turns:
+            PGN_result += str(turn.number) + ". "
+            for move in turn.moves:
+                PGN_result += move.move_text + " "
 
-    return PGN_result
+        return PGN_result
 
 
 def find_notation_start(text: str) -> int:
