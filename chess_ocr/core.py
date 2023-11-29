@@ -1,4 +1,3 @@
-import argparse
 import copy
 import re
 import subprocess
@@ -7,10 +6,8 @@ from pathlib import Path
 import cv2
 import pytesseract
 
-from openai_api import (build_combined_move_suggestion_prompt, chat_completion,
-                        test_next_move_prediction, test_valid_algebraic)
+from openai_api import test_valid_algebraic
 from preprocessing import clean_move
-from representations import Move, Turn
 
 FIRST_NOTATION_TURN = "\d{1,}[,\.]"
 VALID_ALGEBRAIC_MOVE = "([Oo0](-[Oo0]){1,2}|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](\=[QRBN])?[+#]?(\s(1-0|0-1|1\/2-1\/2))?)"
@@ -21,6 +18,68 @@ INTERMEDIATE_FILE_LOCATION = "/Users/james/Documents/code/chess_ocr/intermediate
 TESSERACT_PATH = r"/opt/homebrew/bin/tesseract"
 TESSERACT_CONFIG = "-c tessedit_char_blacklist=i%"
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
+class Move:
+    def __init__(self, move_text: str):
+        self.move_text = move_text
+
+    def __str__(self) -> str:
+        return self.move_text
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def to_dict(self) -> dict:
+        return {"move_text": self.move_text}
+
+
+class Turn:
+    def __init__(self, moves: list[Move], number: int, sus: bool = False):
+        self.number: int = number
+        self.moves: list[Move] = moves
+        self.sus: bool = sus
+
+    def __str__(self) -> str:
+        return f"{self.number}: {self.moves} suspicious: {self.sus}"
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def to_dict(self) -> dict:
+        return {
+            "number": self.number,
+            "moves": [m.to_dict() for m in self.moves],
+            "sus": self.sus,
+        }
+
+class Notation: 
+    def __init__(self, image_loc: Path) -> None:
+        self.image_loc = image_loc
+        self.image = cv2.imread(str(self.image_loc))
+        self.turns, self.notation_start, self.notation_end = parse_move_text(self.to_text())
+
+    def to_text(self) -> str:
+        return pytesseract.image_to_string(self.image, config=TESSERACT_CONFIG).replace("\n", "")
+
+    def get_suspicious_turns(self) -> list[Turn]:
+        pgn_file_name = (
+            f"{INTERMEDIATE_FILE_LOCATION}/{str(self.image_loc).split('/')[-1].replace('png', 'pgn')}"
+        )
+        with open(pgn_file_name, "w") as f:
+            f.write(self.to_text()[self.notation_start:self.notation_end])
+        invalid_move_text = extract_errors(pgn_file_name)
+        return parse_suspicions(self.turns, invalid_move_text)
+
+    def get_turn_suggestions(self) -> list[Turn]:
+
+        edited_turns = copy.copy(self.turns)
+        for turn in self.turns:
+            for move in turn.moves:
+                if not check_move_valid(move.move_text):
+                    move.move_text = test_valid_algebraic(move.move_text)["move_text_suggestion"]
+
+        return edited_turns
+
 
 
 def build_PGN(turns: list[Turn], **kwargs) -> str:
@@ -214,61 +273,3 @@ def parse_suspicions(turns: list[Turn], invalid_move_text: list[str]):
         t.sus = t.sus or check_turn_suspicious(str(t), invalid_move_text)
 
     return turns
-
-
-def parser_handler(input_directory: str) -> None:
-    # Set the directory path
-    dir_path = Path(input_directory)
-
-    # List all files recursively
-    all_files = [
-        file
-        for file in dir_path.rglob("*")
-        if file.is_file() and ".DS" not in file.name
-    ]
-
-    for file_path in sorted(all_files):
-        print("\n \n ------------------------")
-        print(f"This file is {file_path}")
-        print("\n \n ------------------------")
-
-        png_input = file_path
-        pgn_file_name = (
-            f"{INTERMEDIATE_FILE_LOCATION}/{png_input.name.replace('png', 'pgn')}"
-        )
-        note = ocr_text(png_input)
-
-        turns, notation_start, notation_end = parse_move_text(note)
-
-        print(turns)
-
-        # write the parsed pgn to a file
-        with open(pgn_file_name, "w") as f:
-            f.write(note[notation_start:notation_end])
-
-        invalid_move_text = extract_errors(pgn_file_name)
-
-        turns = parse_suspicions(turns, invalid_move_text)
-        print(turns)
-
-        edited_turns = copy.copy(turns)
-
-        for turn in edited_turns:
-            print(turn.moves)
-            for move in turn.moves:
-                if not check_move_valid(move.move_text):
-                    print("Recommended new move")
-                    move.move_text = test_valid_algebraic(move.move_text)["move_text_suggestion"]
-
-        print(edited_turns)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "input_directory",
-        type=str,
-        help="The relative path to the directory containing your notation samples to be parsed.",
-    )
-    args = parser.parse_args()
-    parser_handler(args.input_directory)

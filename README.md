@@ -9,6 +9,19 @@ It does not currently support algebraic notation with piece grapics.
 
 ### How to use it
 
-You'll need to a working version of [PGN Extract](https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/). Compile it and add it to your path. Chess OCR only takes one argument, the input directory of your png samples to be parsed. You can call it with `python3 src/core.py path/to/samples`
+You'll need to a working version of [PGN Extract](https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/). Compile it and add it to your path. 
 
+To use GPT to correct notation OCR mistakes, add your OpenAI API key with the environment variable 'OPENAI_API_KEY'. 
 
+```
+pip install -r requirements.txt
+```
+
+```
+from chess_ocr.core import Notation
+
+extracted_notation = Notation(image_file_path) 
+print("Extracted turn text: ", n.turns)
+print("Suspicious turns (using pgn-extract): ", n.get_suspicious_turns())
+print("Turn suggestions (using openAI GPT API): ", n.get_turn_suggestions())
+```
