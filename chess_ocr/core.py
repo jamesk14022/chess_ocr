@@ -1,12 +1,13 @@
 import copy
 import re
 import subprocess
+import urllib.parse
 from pathlib import Path
 
 import cv2
 import pytesseract
-from openai_api import test_valid_algebraic
 
+from chess_ocr.openai_api import test_valid_algebraic
 from chess_ocr.preprocessing import clean_move
 
 FIRST_NOTATION_TURN = "\d{1,}[,\.]"
@@ -85,7 +86,6 @@ class Notation:
 
         return edited_turns
 
-
     def build_PGN(self, **kwargs) -> str:
         PERMITTED_PGN_HEADERS = [
             "Event",
@@ -97,9 +97,7 @@ class Notation:
             "Result",
         ]
 
-        # build result iteratively
         PGN_result = ""
-
         for key, value in kwargs.items():
             if key not in PERMITTED_PGN_HEADERS:
                 raise Exception("PGN key not in allowed list.")
@@ -114,6 +112,10 @@ class Notation:
                 PGN_result += move.move_text + " "
 
         return PGN_result
+
+    def get_lichess_analysis(self) -> str:
+        encoded_pgn = urllib.parse.quote(self.build_PGN().strip())
+        return f"https://lichess.org/analysis/pgn/{encoded_pgn}"
 
 
 def find_notation_start(text: str) -> int:
@@ -202,7 +204,6 @@ def split_joined_moves(joined_move_text: str):
 def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     # check if the move text appears to be suspicous (exclude move number for now)
     for invalid_text in invalid_move_text:
-        # print(f"mv: {invalid_text} {note[:next_index + len(min_delimiter)]}")
         if invalid_text in turn_text.lower():
             return True
     return False
@@ -234,7 +235,6 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
             next_index = matched_next_indices[min_delimiter]
 
         if note[:next_index].strip() != "":
-            # print(f"raw turn text is {note[:next_index].strip().split(' ')}")
             raw_turn_text = note[:next_index].strip().split(" ")
             raw_turn_text = list(filter(lambda x: x.strip() != "", raw_turn_text))
             # if its the final turn, filter moves which don't appear legit and only take first two moves

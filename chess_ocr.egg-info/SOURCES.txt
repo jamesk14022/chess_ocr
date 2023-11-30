@@ -2,9 +2,9 @@ README.md
 setup.py
 chess_ocr/__init__.py
 chess_ocr/core.py
+chess_ocr/main.py
 chess_ocr/openai_api.py
 chess_ocr/preprocessing.py
-chess_ocr/representations.py
 chess_ocr.egg-info/PKG-INFO
 chess_ocr.egg-info/SOURCES.txt
 chess_ocr.egg-info/dependency_links.txt
