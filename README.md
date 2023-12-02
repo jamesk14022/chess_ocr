@@ -29,6 +29,7 @@ from chess_ocr.core import Notation
 extracted_notation = Notation(image_file_path) 
 print("Extracted turn text: ", n.turns)
 print("Get PGN: ", n.build_PGN)
+print("Get Lichess analysis board url: ", n.get_lichess_analysis())
 print("Suspicious turns (using pgn-extract): ", n.get_suspicious_turns())
 print("Turn suggestions (using openAI GPT API): ", n.get_turn_suggestions())
 ```

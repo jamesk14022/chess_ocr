@@ -86,36 +86,36 @@ class Notation:
 
         return edited_turns
 
-    def build_PGN(self, **kwargs) -> str:
-        PERMITTED_PGN_HEADERS = [
-            "Event",
-            "Site",
-            "Date",
-            "Round",
-            "White",
-            "Black",
-            "Result",
-        ]
-
-        PGN_result = ""
-        for key, value in kwargs.items():
-            if key not in PERMITTED_PGN_HEADERS:
-                raise Exception("PGN key not in allowed list.")
-
-            PGN_result += f'[{key} "{value}"]\n'
-
-        PGN_result += "\n"
-
-        for turn in self.turns:
-            PGN_result += str(turn.number) + ". "
-            for move in turn.moves:
-                PGN_result += move.move_text + " "
-
-        return PGN_result
-
     def get_lichess_analysis(self) -> str:
-        encoded_pgn = urllib.parse.quote(self.build_PGN().strip())
+        encoded_pgn = urllib.parse.quote(build_PGN(self.turns).strip())
         return f"https://lichess.org/analysis/pgn/{encoded_pgn}"
+
+def build_PGN(turns, **kwargs) -> str:
+    PERMITTED_PGN_HEADERS = [
+        "Event",
+        "Site",
+        "Date",
+        "Round",
+        "White",
+        "Black",
+        "Result",
+    ]
+
+    PGN_result = ""
+    for key, value in kwargs.items():
+        if key not in PERMITTED_PGN_HEADERS:
+            raise Exception("PGN key not in allowed list.")
+
+        PGN_result += f'[{key} "{value}"]\n'
+
+    PGN_result += "\n"
+
+    for turn in turns:
+        PGN_result += str(turn.number) + "."
+        for move in turn.moves:
+            PGN_result += move.move_text + " "
+
+    return PGN_result
 
 
 def find_notation_start(text: str) -> int:
@@ -239,7 +239,6 @@ def parse_move_text(inital_note: str) -> tuple[list[Turn], int, int]:
             raw_turn_text = list(filter(lambda x: x.strip() != "", raw_turn_text))
             # if its the final turn, filter moves which don't appear legit and only take first two moves
             if final_turn:
-                # print(f"final turn raw_turn_text is {raw_turn_text}")
                 raw_turn_text = list(filter(check_move_valid, raw_turn_text))[:2]
                 # there is a bug here if the last turn notation appears multiple time in the string?
                 notation_end = inital_note.find(raw_turn_text[-1]) + len(

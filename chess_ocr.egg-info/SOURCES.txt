@@ -2,6 +2,7 @@ README.md
 setup.py
 chess_ocr/__init__.py
 chess_ocr/core.py
+chess_ocr/evalutation.py
 chess_ocr/main.py
 chess_ocr/openai_api.py
 chess_ocr/preprocessing.py
