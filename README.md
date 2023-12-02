@@ -56,5 +56,5 @@ Extraction samples from the book "My System" by Aron Nimzowitsch.
 | 13 | ex14   | 1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nf6 5.Qd3                                                                                                                                       |   2.32558 |       2.32558 |
 | 14 | ex15   | 6…Nxd4 7.Qxd4 Ne7 8.Nf3 Nc6 9.Qf4                                                                                                                                                 |   6.06061 |       6.06061 |
 
-Average OCR CER: 17.414631419603275
-Average OCR GPT CER: 17.28166642224434
+- Average OCR CER: 17.414631419603275
+- Average OCR GPT CER: 17.28166642224434
