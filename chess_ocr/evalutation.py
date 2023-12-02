@@ -44,17 +44,10 @@ def evaluate_my_system_notation():
 
     df_evaulation["OCR_GPT"] = df_evaulation.apply(lambda x: build_PGN(Notation(str(dir_path / x.Name) + ".png").get_turn_suggestions()).replace("\n", ""), axis=1)
     df_evaulation["OCR_GPT_CER"] = df_evaulation.apply(lambda x: calculate_cer(x["OCR_GPT"], x["Human Label"]), axis=1)
-    print(df_evaulation)
+    print(df_evaulation.drop(["OCR_GPT", "OCR"], axis=1).to_markdown())
 
     print(f"Average OCR CER: {df_evaulation['OCR_CER'].mean()}")
     print(f"Average OCR GPT CER: {df_evaulation['OCR_GPT_CER'].mean()}")
 
 if __name__ == "__main__":
     evaluate_my_system_notation()
-
-# # Example usage
-# recognized_text = "Helo, world!"
-# ground_truth_text = "Hello, world!"
-
-# cer = calculate_cer(recognized_text, ground_truth_text)
-# print(f"CER: {cer}%")
