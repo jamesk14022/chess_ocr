@@ -38,7 +38,7 @@ print("Turn suggestions (using openAI GPT API): ", n.get_turn_suggestions())
 
 Extraction samples from the book "My System" by Aron Nimzowitsch.
 
-i|    | Name   | Human Label                                                                                                                                                                       |   OCR_CER |   OCR_GPT_CER |
+|    | Name   | Human Label                                                                                                                                                                       |   OCR_CER |   OCR_GPT_CER |
 |---:|:-------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------:|--------------:|
 |  0 | ex1    | 1.f5 Kf7 2.Ke5 Ke7 3.f6+ Kf7 4.Kf5 Kf8!                                                                                                                                           |   2.5641  |       2.5641  |
 |  1 | ex2    | 8.Ke3 Kc5 9.Kf4!                                                                                                                                                                  |   6.25    |       6.25    |
