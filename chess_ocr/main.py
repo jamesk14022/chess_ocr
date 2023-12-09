@@ -23,7 +23,7 @@ def parser_handler(input_directory: str) -> None:
         n = Notation(file_path)
         print("Raw turns: ", n.turns)
         print("Suspicious turns: ", n.get_suspicious_turns())
-        print("Turn suggestions: ", n.get_turn_suggestions())
+        print("Turn suggestions: ", n.turn_suggestions)
 
 
 if __name__ == "__main__":

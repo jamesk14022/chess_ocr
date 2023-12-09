@@ -5,6 +5,7 @@ chess_ocr/core.py
 chess_ocr/evalutation.py
 chess_ocr/main.py
 chess_ocr/openai_api.py
+chess_ocr/parsing.py
 chess_ocr/preprocessing.py
 chess_ocr.egg-info/PKG-INFO
 chess_ocr.egg-info/SOURCES.txt

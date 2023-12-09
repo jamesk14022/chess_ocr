@@ -24,14 +24,14 @@ pip install -r requirements.txt
 ```
 
 ```
-from chess_ocr.core import Notation, build_PGN
+from chess_ocr.core import Notation, get_turn_suggestions
 
-extracted_notation = Notation(image_file_path) 
-print("Extracted turn text: ", n.turns)
-print("Get PGN: ", build_PGN(n.turns))
-print("Get Lichess analysis board url: ", n.get_lichess_analysis())
-print("Suspicious turns (using pgn-extract): ", n.get_suspicious_turns())
-print("Turn suggestions (using openAI GPT API): ", n.get_turn_suggestions())
+extracted_notation = Notation("image/file/path") 
+print("Extracted turn text: ", extracted_notation.turns)
+print("Get PGN: ", extracted_notation.build_PGN())
+print("Get Lichess analysis board url: ", extracted_notation.analysis_url)
+print("Suspicious turns (using pgn-extract): ", extracted_notation.get_suspicious_turns())
+print("Turn suggestions (using openAI GPT API): ", get_turn_suggestions(extracted_notation).turns)
 ```
 
 ### Performance
