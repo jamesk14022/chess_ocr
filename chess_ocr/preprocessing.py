@@ -12,7 +12,7 @@ def clean_move(move_text: str) -> str:
     return move_text.replace(",", "").replace(".", "")
 
 
-def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
+def _preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
     # Convert to grayscale
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -26,7 +26,7 @@ def preprocessing_gray_binary_upsample(image: ndarray) -> ndarray:
     return msk
 
 
-def alternative_preprocessing(image: ndarray) -> ndarray:
+def _alternative_preprocessing(image: ndarray) -> ndarray:
     # take the cv2 image
     image = imutils.resize(image, width=700)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -35,7 +35,7 @@ def alternative_preprocessing(image: ndarray) -> ndarray:
     return thresh
 
 
-def alternative_preprocessing_cropping_detection(image: ndarray) -> ndarray:
+def _alternative_preprocessing_cropping_detection(image: ndarray) -> ndarray:
     imgr = cv2.resize(
         image,
         (

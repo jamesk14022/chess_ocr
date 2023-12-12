@@ -7,13 +7,9 @@ import cv2
 import pytesseract
 
 from chess_ocr.openai_api import test_valid_algebraic
-from chess_ocr.parsing import (
-    check_move_valid,
-    find_notation_start,
-    get_inital_turn_count,
-    move_delimiters,
-    split_joined_moves,
-)
+from chess_ocr.parsing import (check_move_valid, find_notation_start,
+                               get_inital_turn_count, move_delimiters,
+                               split_joined_moves)
 from chess_ocr.preprocessing import clean_move
 
 FIRST_NOTATION_TURN = "\d{1,}[,\.]"
@@ -65,7 +61,7 @@ class Notation:
     def __init__(self, image_loc: Path) -> None:
         self.image_loc = image_loc
         self.image = cv2.imread(str(self.image_loc))
-        self.turns, self.notation_end = Notation.parse_move_text(self.text)
+        self.turns, self.notation_end = Notation._parse_move_text(self.text)
 
     def __len__(self):
         return len(self.turns)
@@ -84,7 +80,7 @@ class Notation:
         return f"https://lichess.org/analysis/pgn/{encoded_pgn}"
 
     @staticmethod
-    def parse_move_text(inital_note: str) -> tuple[list[Turn], int]:
+    def _parse_move_text(inital_note: str) -> tuple[list[Turn], int]:
         note = inital_note
 
         next_turn_count = get_inital_turn_count(note)
@@ -146,8 +142,8 @@ class Notation:
         pgn_file_name = f"{INTERMEDIATE_FILE_LOCATION}/{str(self.image_loc).split('/')[-1].replace('png', 'pgn')}"
         with open(pgn_file_name, "w") as f:
             f.write(self.text[self.notation_start : self.notation_end])
-        invalid_move_text = extract_errors(pgn_file_name)
-        return parse_suspicions(self.turns, invalid_move_text)
+        invalid_move_text = _extract_errors(pgn_file_name)
+        return _parse_suspicions(self.turns, invalid_move_text)
 
     def build_PGN(self, **kwargs) -> str:
         PERMITTED_PGN_HEADERS = [
@@ -177,19 +173,7 @@ class Notation:
         return PGN_result
 
 
-def get_turn_suggestions(notation: Notation) -> list[Turn]:
-    edited_notation = copy.copy(notation)
-    for turn in edited_notation.turns:
-        for move in turn.moves:
-            if not check_move_valid(move.move_text):
-                move.move_text = test_valid_algebraic(move.move_text)[
-                    "move_text_suggestion"
-                ]
-
-    return edited_notation
-
-
-def extract_errors(file_name: str) -> list[str]:
+def _extract_errors(file_name: str) -> list[str]:
     out_lines = (
         subprocess.run(["./pgn-extract", "-r", file_name], capture_output=True)
         .stderr.decode("UTF-8")
@@ -209,7 +193,7 @@ def extract_errors(file_name: str) -> list[str]:
     return invalid_move_text
 
 
-def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
+def _check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     # check if the move text appears to be suspicous (exclude move number for now)
     for invalid_text in invalid_move_text:
         if invalid_text in turn_text.lower():
@@ -217,8 +201,20 @@ def check_turn_suspicious(turn_text: str, invalid_move_text: list[str]) -> bool:
     return False
 
 
-def parse_suspicions(turns: list[Turn], invalid_move_text: list[str]):
+def _parse_suspicions(turns: list[Turn], invalid_move_text: list[str]):
     for t in turns:
-        t.sus = t.sus or check_turn_suspicious(str(t), invalid_move_text)
+        t.sus = t.sus or _check_turn_suspicious(str(t), invalid_move_text)
 
     return turns
+
+
+def get_turn_suggestions(notation: Notation) -> list[Turn]:
+    edited_notation = copy.copy(notation)
+    for turn in edited_notation.turns:
+        for move in turn.moves:
+            if not check_move_valid(move.move_text):
+                move.move_text = test_valid_algebraic(move.move_text)[
+                    "move_text_suggestion"
+                ]
+
+    return edited_notation

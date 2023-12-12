@@ -4,7 +4,7 @@ from pathlib import Path
 from chess_ocr.core import Notation
 
 
-def parser_handler(input_directory: str) -> None:
+def _parser_handler(input_directory: str) -> None:
     # Set the directory path
     dir_path = Path(input_directory)
 
@@ -34,4 +34,4 @@ if __name__ == "__main__":
         help="The relative path to the directory containing your notation samples to be parsed.",
     )
     args = parser.parse_args()
-    parser_handler(args.input_directory)
+    _parser_handler(args.input_directory)

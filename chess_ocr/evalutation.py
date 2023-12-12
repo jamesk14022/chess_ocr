@@ -6,7 +6,7 @@ import pandas as pd
 from chess_ocr.core import Notation, get_turn_suggestions
 
 
-def calculate_cer(recognized_text, ground_truth_text):
+def _calculate_cer(recognized_text, ground_truth_text):
     """
     Calculate the Character Error Rate (CER) between the recognized text and the ground truth text.
 
@@ -33,15 +33,15 @@ def calculate_cer(recognized_text, ground_truth_text):
     return cer
 
 
-def load_my_system_ground_truth():
+def _load_my_system_ground_truth():
     my_system_data_path = (
         Path(__file__).parent.parent / "./resources/my_system_ground_truth.csv"
     )
     return pd.read_csv(str(my_system_data_path))
 
 
-def evaluate_my_system_notation():
-    df_evaulation = load_my_system_ground_truth()
+def _evaluate_my_system_notation():
+    df_evaulation = _load_my_system_ground_truth()
     # Set the directory path
     dir_path = Path(__file__).parent.parent / "./my_system_notation_samples"
     df_evaulation["OCR"] = df_evaulation.apply(
@@ -51,7 +51,7 @@ def evaluate_my_system_notation():
         axis=1,
     )
     df_evaulation["OCR_CER"] = df_evaulation.apply(
-        lambda x: calculate_cer(x["OCR"], x["Human Label"]), axis=1
+        lambda x: _calculate_cer(x["OCR"], x["Human Label"]), axis=1
     )
 
     # turn suggestion should result in notation object
@@ -62,13 +62,12 @@ def evaluate_my_system_notation():
         axis=1,
     )
     df_evaulation["OCR_GPT_CER"] = df_evaulation.apply(
-        lambda x: calculate_cer(x["OCR_GPT"], x["Human Label"]), axis=1
+        lambda x: _calculate_cer(x["OCR_GPT"], x["Human Label"]), axis=1
     )
     print(df_evaulation.drop(["OCR_GPT", "OCR"], axis=1).to_markdown())
-
     print(f"Average OCR CER: {df_evaulation['OCR_CER'].mean()}")
     print(f"Average OCR GPT CER: {df_evaulation['OCR_GPT_CER'].mean()}")
 
 
 if __name__ == "__main__":
-    evaluate_my_system_notation()
+    _evaluate_my_system_notation()
